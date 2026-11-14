@@ -1,18 +1,21 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import { ArrowLeft, Bookmark, Check, Edit3, Feather, Shield, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, Bookmark, Check, Edit3, Feather, Heart, Shield, ShieldAlert, Sprout } from 'lucide-react';
 import { AuthModal } from '@/components/AuthModal';
 import { Avatar } from '@/components/Avatar';
 import { CrisisModal } from '@/components/CrisisModal';
 import { Navbar } from '@/components/Navbar';
 import { PostCard } from '@/components/PostCard';
 import { PostComposerModal } from '@/components/PostComposerModal';
+import { ShareCardModal } from '@/components/ShareCardModal';
 import { TIER_INFO } from '@/lib/constants';
 import { Post, Profile, ReactionType } from '@/lib/types';
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [user, setUser] = useState<Profile | null>(null);
   const [usage, setUsage] = useState<{ postsToday: number; commentsToday: number }>({
     postsToday: 0,
@@ -20,7 +23,7 @@ export default function ProfilePage() {
   });
   const [myPosts, setMyPosts] = useState<Post[]>([]);
   const [bookmarkedPosts, setBookmarkedPosts] = useState<Post[]>([]);
-  const [activeTab, setActiveTab] = useState<'mine' | 'bookmarks'>('mine');
+  const [activeTab, setActiveTab] = useState<'mine' | 'wins' | 'bookmarks'>('mine');
   const [loading, setLoading] = useState(true);
 
   const [editingName, setEditingName] = useState(false);
@@ -30,6 +33,7 @@ export default function ProfilePage() {
   const [authOpen, setAuthOpen] = useState(false);
   const [composerOpen, setComposerOpen] = useState(false);
   const [crisisOpen, setCrisisOpen] = useState(false);
+  const [sharePost, setSharePost] = useState<Post | null>(null);
 
   const loadProfile = useCallback(async () => {
     setLoading(true);
@@ -91,6 +95,15 @@ export default function ProfilePage() {
     loadProfile();
   }
 
+  async function handleVotePoll(postId: string, optionId: string) {
+    const res = await fetch('/api/polls', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postId, optionId }),
+    });
+    if (res.ok) loadProfile();
+  }
+
   async function handleLogout() {
     await fetch('/api/auth', {
       method: 'POST',
@@ -102,7 +115,13 @@ export default function ProfilePage() {
     setBookmarkedPosts([]);
   }
 
-  const displayedPosts = activeTab === 'mine' ? myPosts : bookmarkedPosts;
+  const myWins = myPosts.filter((p) => p.is_daily_win);
+  const totalReceivedEmpathy = myPosts.reduce(
+    (sum, p) => sum + (p.empathy_count || 0) + (p.same_here_count || 0),
+    0
+  );
+  const displayedPosts =
+    activeTab === 'mine' ? myPosts : activeTab === 'wins' ? myWins : bookmarkedPosts;
 
   return (
     <div className="min-h-screen bg-[#080c14]">
@@ -212,9 +231,49 @@ export default function ProfilePage() {
                   </p>
                 </div>
               </div>
+
+              {/* Kişisel Empati & Etki Özeti Kartları */}
+              <div className="mt-5 grid grid-cols-2 gap-3 border-t border-white/10 pt-5 sm:grid-cols-4">
+                <div className="rounded-xl border border-white/5 bg-[#080c14] p-3">
+                  <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                    <Feather className="h-3.5 w-3.5 text-violet-400" />
+                    <span>Paylaşımlarım</span>
+                  </div>
+                  <div className="mt-1 font-serif text-lg font-bold text-slate-100">
+                    {myPosts.length}
+                  </div>
+                </div>
+                <div className="rounded-xl border border-emerald-400/15 bg-[#080c14] p-3">
+                  <div className="flex items-center gap-1.5 text-[11px] text-emerald-300/80">
+                    <Sprout className="h-3.5 w-3.5 text-emerald-400" />
+                    <span>Küçük Zaferim</span>
+                  </div>
+                  <div className="mt-1 font-serif text-lg font-bold text-emerald-300">
+                    {myWins.length}
+                  </div>
+                </div>
+                <div className="rounded-xl border border-sky-400/15 bg-[#080c14] p-3">
+                  <div className="flex items-center gap-1.5 text-[11px] text-sky-300/80">
+                    <Heart className="h-3.5 w-3.5 text-sky-400" />
+                    <span>Aldığım Destek</span>
+                  </div>
+                  <div className="mt-1 font-serif text-lg font-bold text-sky-300">
+                    {totalReceivedEmpathy}
+                  </div>
+                </div>
+                <div className="rounded-xl border border-amber-400/15 bg-[#080c14] p-3">
+                  <div className="flex items-center gap-1.5 text-[11px] text-amber-300/80">
+                    <Bookmark className="h-3.5 w-3.5 text-amber-400" />
+                    <span>Kaydedilenler</span>
+                  </div>
+                  <div className="mt-1 font-serif text-lg font-bold text-amber-300">
+                    {bookmarkedPosts.length}
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="flex gap-2 border-b border-white/10 pb-2">
+            <div className="flex flex-wrap gap-2 border-b border-white/10 pb-2">
               <button
                 onClick={() => setActiveTab('mine')}
                 className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium transition ${
@@ -225,6 +284,17 @@ export default function ProfilePage() {
               >
                 <Feather className="h-3.5 w-3.5" />
                 Paylaşımlarım ({myPosts.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('wins')}
+                className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium transition ${
+                  activeTab === 'wins'
+                    ? 'bg-emerald-500/20 text-emerald-200'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Sprout className="h-3.5 w-3.5 text-emerald-400" />
+                Küçük Zaferlerim ({myWins.length})
               </button>
               <button
                 onClick={() => setActiveTab('bookmarks')}
@@ -243,7 +313,9 @@ export default function ProfilePage() {
               <div className="rounded-2xl border border-white/10 bg-[#101624] p-8 text-center text-sm text-slate-400">
                 {activeTab === 'mine'
                   ? 'Henüz bir paylaşım yapmadın.'
-                  : 'Henüz kaydettiğin bir paylaşım yok.'}
+                  : activeTab === 'wins'
+                    ? 'Henüz bir küçük zafer paylaşmadın.'
+                    : 'Henüz kaydettiğin bir paylaşım yok.'}
               </div>
             ) : (
               <div className="space-y-3">
@@ -251,8 +323,11 @@ export default function ProfilePage() {
                   <PostCard
                     key={p.id}
                     post={p}
+                    onTagClick={(tag) => router.push(`/?tag=${encodeURIComponent(tag)}`)}
                     onReact={handleReact}
                     onBookmark={handleBookmark}
+                    onVotePoll={handleVotePoll}
+                    onShare={(postItem) => setSharePost(postItem)}
                   />
                 ))}
               </div>
@@ -264,11 +339,13 @@ export default function ProfilePage() {
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} onSuccess={() => loadProfile()} />
       <PostComposerModal
         open={composerOpen}
+        defaultDailyWin={activeTab === 'wins'}
         onClose={() => setComposerOpen(false)}
         onCreated={() => loadProfile()}
         onCrisisTriggered={() => setCrisisOpen(true)}
       />
       <CrisisModal open={crisisOpen} onClose={() => setCrisisOpen(false)} />
+      <ShareCardModal post={sharePost} onClose={() => setSharePost(null)} />
     </div>
   );
 }

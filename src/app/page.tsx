@@ -411,6 +411,7 @@ function FeedContent() {
             }}
             onReact={handleReact}
             onBookmark={handleBookmark}
+            onVotePoll={handleVotePoll}
             onShare={(p) => setSharePost(p)}
             onTagClick={(tag) => {
               setActiveTag(tag);

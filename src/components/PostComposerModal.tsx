@@ -52,10 +52,11 @@ export function PostComposerModal({
   useEffect(() => {
     if (open) {
       setIsDailyWin(defaultDailyWin);
-      if (defaultDailyWin) setMood('umutlu');
-      if (initialTitle) setTitle(initialTitle);
-      if (initialCategoryId) setCategoryId(initialCategoryId);
-      if (initialTags && initialTags.length > 0) setTags(initialTags);
+      setMood(defaultDailyWin ? 'umutlu' : 'bunaldim');
+      setTitle(initialTitle || '');
+      setCategoryId(initialCategoryId || 7);
+      setTags(initialTags && initialTags.length > 0 ? initialTags : []);
+      setError('');
     }
   }, [open, defaultDailyWin, initialTitle, initialCategoryId, initialTags]);
 
@@ -214,6 +215,10 @@ export function PostComposerModal({
               placeholder="Aklından geçenleri yargılanma korkusu olmadan yaz... (Telefon, e-posta veya sosyal medya adı paylaşma)"
               className="w-full rounded-xl border border-white/10 bg-[#080c14] px-3.5 py-2.5 text-sm leading-relaxed text-slate-100 placeholder-slate-500 focus:border-violet-400/50 focus:outline-none"
             />
+            <div className="mt-1 flex items-center justify-between text-[11px] text-slate-500">
+              <span>Paragraf boşlukları ve satır sonları okuma görünümünde korunur.</span>
+              <span className="font-mono">{content.length} karakter</span>
+            </div>
           </div>
 
           <div>

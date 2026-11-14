@@ -37,6 +37,12 @@ export function formatExpiryRemaining(iso: string): string {
   return `${days} gün sonra silinecek`;
 }
 
+export function estimateReadingTime(text: string): string {
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  const mins = Math.max(1, Math.ceil(words / 180));
+  return `~${mins} dk okuma`;
+}
+
 const MOOD_BORDER: Record<string, string> = {
   uzgun: 'border-l-blue-400/60',
   bunaldim: 'border-l-violet-400/60',
@@ -58,11 +64,17 @@ export function PostCard({
   const tier = TIER_INFO[post.author_tier];
   const replyMode = REPLY_MODES[post.reply_mode];
   const userReactions = post.user_reactions || [];
-  const moodBorder = MOOD_BORDER[post.mood] || 'border-l-violet-400/50';
+  const moodBorder = post.is_daily_win
+    ? 'border-l-emerald-400/80'
+    : MOOD_BORDER[post.mood] || 'border-l-violet-400/50';
 
   return (
     <article
-      className={`group rounded-2xl border border-white/10 border-l-4 ${moodBorder} bg-gradient-to-br from-[#111827] to-[#0d1320] p-5 transition hover:border-violet-400/30`}
+      className={`group rounded-2xl border border-white/10 border-l-4 ${moodBorder} ${
+        post.is_daily_win
+          ? 'bg-gradient-to-br from-[#0d1f1d] to-[#0b1320] hover:border-emerald-400/40'
+          : 'bg-gradient-to-br from-[#111827] to-[#0d1320] hover:border-violet-400/30'
+      } p-5 transition`}
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2.5">
@@ -75,7 +87,7 @@ export function PostCard({
               </span>
             </div>
             <div className="font-mono text-[11px] text-slate-500">
-              {post.category_name} · {formatRelativeTime(post.created_at)}
+              {post.category_name} · {formatRelativeTime(post.created_at)} · {estimateReadingTime(post.content)}
             </div>
           </div>
         </div>
@@ -105,7 +117,7 @@ export function PostCard({
         <h3 className="font-serif text-lg font-semibold leading-snug tracking-tight text-slate-50 transition group-hover:text-violet-200 sm:text-xl">
           {post.title}
         </h3>
-        <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-slate-300/90">
+        <p className="mt-2 line-clamp-3 whitespace-pre-line text-sm leading-relaxed text-slate-300/90">
           {post.content}
         </p>
       </Link>

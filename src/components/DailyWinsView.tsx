@@ -20,7 +20,8 @@ import {
 import { TIER_INFO } from '@/lib/constants';
 import { Post, ReactionType } from '@/lib/types';
 import { Avatar } from './Avatar';
-import { formatRelativeTime } from './PostCard';
+import { PollBlock } from './PollBlock';
+import { estimateReadingTime, formatRelativeTime } from './PostCard';
 
 interface DailyWinsViewProps {
   posts: Post[];
@@ -29,6 +30,7 @@ interface DailyWinsViewProps {
   onOpenWinComposer: (preset?: { title?: string; categoryId?: number; tags?: string[] }) => void;
   onReact: (postId: string, type: ReactionType) => void;
   onBookmark: (postId: string) => void;
+  onVotePoll?: (postId: string, optionId: string) => void;
   onShare: (post: Post) => void;
   onTagClick: (tag: string) => void;
 }
@@ -125,6 +127,7 @@ export function DailyWinsView({
   onOpenWinComposer,
   onReact,
   onBookmark,
+  onVotePoll,
   onShare,
   onTagClick,
 }: DailyWinsViewProps) {
@@ -489,7 +492,8 @@ export function DailyWinsView({
                           </span>
                         </div>
                         <div className="font-mono text-[11px] text-emerald-200/60">
-                          {post.category_name} · {formatRelativeTime(post.created_at)}
+                          {post.category_name} · {formatRelativeTime(post.created_at)} ·{' '}
+                          {estimateReadingTime(post.content)}
                         </div>
                       </div>
                     </div>
@@ -505,10 +509,32 @@ export function DailyWinsView({
                     <h3 className="font-serif text-lg font-semibold leading-snug tracking-tight text-white transition group-hover:text-emerald-200 sm:text-xl">
                       {post.title}
                     </h3>
-                    <p className="mt-2.5 line-clamp-4 text-sm leading-relaxed text-slate-200/90">
+                    <p className="mt-2.5 line-clamp-4 whitespace-pre-line text-sm leading-relaxed text-slate-200/90">
                       {post.content}
                     </p>
                   </Link>
+
+                  {/* Sonra Ne Oldu? Güncellemesi */}
+                  {post.update_text && (
+                    <div className="mt-3 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-3">
+                      <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-emerald-300">
+                        <Sparkles className="h-3.5 w-3.5" />
+                        <span>Sonra Ne Oldu? · Güncelleme</span>
+                      </div>
+                      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-emerald-100/90">
+                        {post.update_text}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Anonim Karar Anketi */}
+                  {post.poll && onVotePoll && (
+                    <PollBlock
+                      postId={post.id}
+                      poll={post.poll}
+                      onVote={(optionId) => onVotePoll(post.id, optionId)}
+                    />
+                  )}
 
                   {/* Etiketler */}
                   {post.tags.length > 0 && (

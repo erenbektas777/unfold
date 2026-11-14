@@ -7,6 +7,7 @@ import {
   AlertTriangle,
   ArrowLeft,
   Bookmark,
+  Check,
   Clock,
   CornerDownRight,
   Edit3,
@@ -14,11 +15,13 @@ import {
   Flag,
   HandHeart,
   Heart,
+  Link2,
   Lock,
   MessageCircle,
   Send,
   Share2,
   Sparkles,
+  Sprout,
   Trash2,
   Unlock,
   Users,
@@ -28,7 +31,7 @@ import { Avatar } from '@/components/Avatar';
 import { CrisisModal } from '@/components/CrisisModal';
 import { Navbar } from '@/components/Navbar';
 import { PollBlock } from '@/components/PollBlock';
-import { formatExpiryRemaining, formatRelativeTime } from '@/components/PostCard';
+import { estimateReadingTime, formatExpiryRemaining, formatRelativeTime } from '@/components/PostCard';
 import { PostComposerModal } from '@/components/PostComposerModal';
 import { ShareCardModal } from '@/components/ShareCardModal';
 import { MOODS, REPLY_MODES, TIER_INFO } from '@/lib/constants';
@@ -68,6 +71,7 @@ function CommentItem({
   onHideByAuthor: (commentId: string) => void;
 }) {
   const tier = TIER_INFO[node.author_tier];
+  const [confirmHide, setConfirmHide] = useState(false);
 
   return (
     <div className={`${depth > 0 ? 'ml-5 border-l border-white/10 pl-4 sm:ml-7' : ''}`}>
@@ -97,14 +101,37 @@ function CommentItem({
 
           <div className="flex items-center gap-2">
             {isPostAuthor && node.author_id !== currentUserId && (
-              <button
-                type="button"
-                onClick={() => onHideByAuthor(node.id)}
-                title="Paylaşım sahibi olarak bu yorumu gizle"
-                className="text-slate-500 transition hover:text-amber-300"
-              >
-                <EyeOff className="h-3.5 w-3.5" />
-              </button>
+              confirmHide ? (
+                <div className="flex items-center gap-1 rounded-lg border border-amber-400/30 bg-amber-500/10 px-2 py-0.5 text-[10px]">
+                  <span className="text-amber-200">Gizlensin mi?</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setConfirmHide(false);
+                      onHideByAuthor(node.id);
+                    }}
+                    className="font-semibold text-rose-300 hover:underline"
+                  >
+                    Evet
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmHide(false)}
+                    className="text-slate-400 hover:text-white"
+                  >
+                    İptal
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setConfirmHide(true)}
+                  title="Paylaşım sahibi olarak bu yorumu gizle"
+                  className="text-slate-500 transition hover:text-amber-300"
+                >
+                  <EyeOff className="h-3.5 w-3.5" />
+                </button>
+              )
             )}
             <button
               type="button"
@@ -217,6 +244,8 @@ export default function PostDetailPage() {
   const [composerOpen, setComposerOpen] = useState(false);
   const [crisisOpen, setCrisisOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [confirmDeletePost, setConfirmDeletePost] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const loadData = useCallback(async () => {
     const [authRes, postRes] = await Promise.all([
@@ -350,10 +379,17 @@ export default function PostDetailPage() {
   }
 
   async function handleDeletePost() {
-    if (!confirm('Bu paylaşımı kalıcı olarak silmek istediğine emin misin?')) return;
     const res = await fetch(`/api/posts/${postId}`, { method: 'DELETE' });
     if (res.ok) {
       router.push('/');
+    }
+  }
+
+  function handleCopyLink() {
+    if (typeof window !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(window.location.href).catch(() => {});
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
     }
   }
 
@@ -382,7 +418,6 @@ export default function PostDetailPage() {
 
   // #9 Yazar tarafından yorumu gizleme
   async function handleHideCommentByAuthor(commentId: string) {
-    if (!confirm('Bu yorumu kendi paylaşımının altından gizlemek istiyor musun?')) return;
     const res = await fetch('/api/comments', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -464,13 +499,26 @@ export default function PostDetailPage() {
       />
 
       <main className="mx-auto max-w-6xl px-4 py-6">
-        <a
-          href="/"
-          className="mb-5 inline-flex items-center gap-1.5 text-sm text-slate-400 transition hover:text-slate-200"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Akışa Dön
-        </a>
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <a
+              href="/"
+              className="inline-flex items-center gap-1.5 text-sm text-slate-400 transition hover:text-slate-200"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Akışa Dön
+            </a>
+            {post?.is_daily_win && (
+              <a
+                href="/?sort=daily_wins"
+                className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/35 bg-emerald-500/15 px-3 py-1 text-xs font-medium text-emerald-200 transition hover:bg-emerald-500/25"
+              >
+                <Sprout className="h-3.5 w-3.5 text-emerald-300" />
+                <span>Küçük Zaferler Bahçesine Dön</span>
+              </a>
+            )}
+          </div>
+        </div>
 
         {reportNotice && (
           <div className="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-xs text-emerald-200">
@@ -487,7 +535,13 @@ export default function PostDetailPage() {
         ) : (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
             <div className="space-y-6 lg:col-span-8">
-              <article className="rounded-2xl border border-white/10 bg-[#101624] p-6">
+              <article
+                className={`rounded-2xl border p-6 ${
+                  post.is_daily_win
+                    ? 'border-emerald-400/30 bg-gradient-to-br from-[#0c221d] via-[#0e1b22] to-[#101624]'
+                    : 'border-white/10 bg-[#101624]'
+                }`}
+              >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <Avatar seed={post.author_avatar_seed} size={40} />
@@ -498,8 +552,9 @@ export default function PostDetailPage() {
                           {TIER_INFO[post.author_tier].label}
                         </span>
                       </div>
-                      <div className="text-xs text-slate-500">
-                        {post.category_name} · {formatRelativeTime(post.created_at)}
+                      <div className="font-mono text-xs text-slate-500">
+                        {post.category_name} · {formatRelativeTime(post.created_at)} ·{' '}
+                        {estimateReadingTime(post.content)}
                       </div>
                     </div>
                   </div>
@@ -519,6 +574,21 @@ export default function PostDetailPage() {
                     <span className={`rounded-full border px-2.5 py-0.5 text-xs ${MOODS[post.mood].color}`}>
                       {MOODS[post.mood].label}
                     </span>
+                    <button
+                      type="button"
+                      onClick={handleCopyLink}
+                      title="Paylaşım Bağlantısını Kopyala"
+                      className="inline-flex items-center gap-1 rounded-lg p-1.5 text-xs text-slate-400 transition hover:bg-white/5 hover:text-sky-300"
+                    >
+                      {linkCopied ? (
+                        <>
+                          <Check className="h-4 w-4 text-emerald-400" />
+                          <span className="text-[11px] text-emerald-300">Kopyalandı</span>
+                        </>
+                      ) : (
+                        <Link2 className="h-4 w-4" />
+                      )}
+                    </button>
                     <button
                       type="button"
                       onClick={() => setShareOpen(true)}
@@ -563,14 +633,34 @@ export default function PostDetailPage() {
                         >
                           <Edit3 className="h-4 w-4" />
                         </button>
-                        <button
-                          type="button"
-                          onClick={handleDeletePost}
-                          title="Sil"
-                          className="rounded-lg p-1.5 text-slate-400 hover:bg-white/5 hover:text-rose-300"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        {confirmDeletePost ? (
+                          <div className="flex items-center gap-1 rounded-lg border border-rose-500/40 bg-rose-500/15 px-2 py-1 text-xs">
+                            <span className="text-rose-200">Silinsin mi?</span>
+                            <button
+                              type="button"
+                              onClick={handleDeletePost}
+                              className="font-semibold text-rose-300 hover:underline"
+                            >
+                              Evet
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setConfirmDeletePost(false)}
+                              className="text-slate-400 hover:text-white"
+                            >
+                              İptal
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setConfirmDeletePost(true)}
+                            title="Sil"
+                            className="rounded-lg p-1.5 text-slate-400 hover:bg-white/5 hover:text-rose-300"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        )}
                       </>
                     ) : (
                       <button
@@ -744,12 +834,18 @@ export default function PostDetailPage() {
                     onClick={() => handleReactPost('ayni_durumdayim')}
                     className={`flex items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-medium transition ${
                       post.user_reactions?.includes('ayni_durumdayim')
-                        ? 'border-violet-400/50 bg-violet-500/20 text-violet-200'
+                        ? post.is_daily_win
+                          ? 'border-emerald-400/50 bg-emerald-500/20 text-emerald-200'
+                          : 'border-violet-400/50 bg-violet-500/20 text-violet-200'
                         : 'border-white/10 bg-white/[0.02] text-slate-200 hover:border-violet-400/30'
                     }`}
                   >
-                    <Users className="h-4 w-4" />
-                    <span>Ben de aynı şeyi yaşıyorum ({post.same_here_count})</span>
+                    {post.is_daily_win ? <Sprout className="h-4 w-4 text-emerald-300" /> : <Users className="h-4 w-4" />}
+                    <span>
+                      {post.is_daily_win
+                        ? `Bana Umut Oldu (${post.same_here_count})`
+                        : `Ben de aynı şeyi yaşıyorum (${post.same_here_count})`}
+                    </span>
                   </button>
 
                   <button
@@ -757,12 +853,14 @@ export default function PostDetailPage() {
                     onClick={() => handleReactPost('yanindayim')}
                     className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs transition ${
                       post.user_reactions?.includes('yanindayim')
-                        ? 'border-sky-400/50 bg-sky-500/20 text-sky-200'
+                        ? post.is_daily_win
+                          ? 'border-amber-400/50 bg-amber-500/20 text-amber-200'
+                          : 'border-sky-400/50 bg-sky-500/20 text-sky-200'
                         : 'border-white/10 bg-white/[0.02] text-slate-300 hover:border-sky-400/30'
                     }`}
                   >
-                    <HandHeart className="h-4 w-4" />
-                    <span>Yanındayım</span>
+                    {post.is_daily_win ? <span>👏</span> : <HandHeart className="h-4 w-4" />}
+                    <span>{post.is_daily_win ? 'Gurur Duydum' : 'Yanındayım'}</span>
                   </button>
 
                   <button
@@ -775,7 +873,11 @@ export default function PostDetailPage() {
                     }`}
                   >
                     <Heart className="h-4 w-4" />
-                    <span>Seni anlıyorum ({post.empathy_count})</span>
+                    <span>
+                      {post.is_daily_win
+                        ? `Kalpten Kutluyorum (${post.empathy_count})`
+                        : `Seni anlıyorum (${post.empathy_count})`}
+                    </span>
                   </button>
                 </div>
               </article>

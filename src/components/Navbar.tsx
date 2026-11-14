@@ -140,7 +140,7 @@ export function Navbar({
         )}
 
         <div className="flex items-center gap-2">
-          {onToggleWinsMode && (
+          {onToggleWinsMode ? (
             <button
               type="button"
               onClick={onToggleWinsMode}
@@ -155,6 +155,14 @@ export function Navbar({
                 {isWinsMode ? 'Dertleşme Akışı' : 'Küçük Zaferler'}
               </span>
             </button>
+          ) : (
+            <Link
+              href="/?sort=daily_wins"
+              className="flex items-center gap-1.5 rounded-xl border border-emerald-400/25 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-200 transition hover:border-emerald-400/45 hover:bg-emerald-500/20"
+            >
+              <Sprout className="h-3.5 w-3.5 text-emerald-300" />
+              <span className="hidden sm:inline">Küçük Zaferler</span>
+            </Link>
           )}
 
           <button

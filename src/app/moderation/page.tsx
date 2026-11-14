@@ -1,18 +1,24 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, CheckCircle2, Eye, EyeOff, KeyRound, ShieldAlert, XCircle } from 'lucide-react';
 import { AuthModal } from '@/components/AuthModal';
+import { CrisisModal } from '@/components/CrisisModal';
 import { Navbar } from '@/components/Navbar';
 import { formatRelativeTime } from '@/components/PostCard';
+import { PostComposerModal } from '@/components/PostComposerModal';
 import { ModerationLogItem, Profile, ReportItem } from '@/lib/types';
 
 export default function ModerationPage() {
+  const router = useRouter();
   const [user, setUser] = useState<Profile | null>(null);
   const [reports, setReports] = useState<ReportItem[]>([]);
   const [logs, setLogs] = useState<ModerationLogItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [authOpen, setAuthOpen] = useState(false);
+  const [composerOpen, setComposerOpen] = useState(false);
+  const [crisisOpen, setCrisisOpen] = useState(false);
 
   const [adminSecret, setAdminSecret] = useState('');
   const [claimError, setClaimError] = useState('');
@@ -83,7 +89,7 @@ export default function ModerationPage() {
       <Navbar
         user={user}
         onOpenAuth={() => setAuthOpen(true)}
-        onOpenComposer={() => {}}
+        onOpenComposer={() => setComposerOpen(true)}
         onLogout={handleLogout}
       />
 
@@ -256,6 +262,13 @@ export default function ModerationPage() {
       </main>
 
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} onSuccess={() => loadModeration()} />
+      <PostComposerModal
+        open={composerOpen}
+        onClose={() => setComposerOpen(false)}
+        onCreated={(post) => router.push(`/post/${post.id}`)}
+        onCrisisTriggered={() => setCrisisOpen(true)}
+      />
+      <CrisisModal open={crisisOpen} onClose={() => setCrisisOpen(false)} />
     </div>
   );
 }
