@@ -8,6 +8,9 @@ import { Mood, Post, ReplyMode } from '@/lib/types';
 interface PostComposerModalProps {
   open: boolean;
   defaultDailyWin?: boolean;
+  initialTitle?: string;
+  initialCategoryId?: number;
+  initialTags?: string[];
   onClose: () => void;
   onCreated: (post: Post) => void;
   onCrisisTriggered: () => void;
@@ -24,6 +27,9 @@ const EXPIRY_OPTIONS: { value: number | null; label: string }[] = [
 export function PostComposerModal({
   open,
   defaultDailyWin = false,
+  initialTitle = '',
+  initialCategoryId,
+  initialTags,
   onClose,
   onCreated,
   onCrisisTriggered,
@@ -47,8 +53,11 @@ export function PostComposerModal({
     if (open) {
       setIsDailyWin(defaultDailyWin);
       if (defaultDailyWin) setMood('umutlu');
+      if (initialTitle) setTitle(initialTitle);
+      if (initialCategoryId) setCategoryId(initialCategoryId);
+      if (initialTags && initialTags.length > 0) setTags(initialTags);
     }
-  }, [open, defaultDailyWin]);
+  }, [open, defaultDailyWin, initialTitle, initialCategoryId, initialTags]);
 
   if (!open) return null;
 

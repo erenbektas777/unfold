@@ -19,6 +19,7 @@ import {
 import { AuthModal } from '@/components/AuthModal';
 import { BreathingWidget } from '@/components/BreathingWidget';
 import { CrisisModal } from '@/components/CrisisModal';
+import { DailyWinsView } from '@/components/DailyWinsView';
 import { Navbar } from '@/components/Navbar';
 import { PostCard } from '@/components/PostCard';
 import { PostComposerModal } from '@/components/PostComposerModal';
@@ -61,6 +62,11 @@ function FeedContent() {
   const [authOpen, setAuthOpen] = useState(false);
   const [composerOpen, setComposerOpen] = useState(false);
   const [composerDailyWin, setComposerDailyWin] = useState(false);
+  const [composerPreset, setComposerPreset] = useState<{
+    title?: string;
+    categoryId?: number;
+    tags?: string[];
+  }>({});
   const [crisisOpen, setCrisisOpen] = useState(false);
   const [sharePost, setSharePost] = useState<Post | null>(null);
 
@@ -298,16 +304,29 @@ function FeedContent() {
     { id: 'most_supported', label: 'En Çok Destek', icon: ShieldCheck },
   ];
 
+  const isWinsMode = sort === 'daily_wins';
+
   return (
-    <div className="min-h-screen bg-[#080c14]">
+    <div
+      className={`min-h-screen transition-colors duration-500 ${
+        isWinsMode ? 'bg-[#05100e]' : 'bg-[#080c14]'
+      }`}
+    >
       <Navbar
         user={user}
         notifications={notifications}
         searchValue={search}
         onSearchChange={setSearch}
+        isWinsMode={isWinsMode}
+        onToggleWinsMode={() => {
+          setCategory('all');
+          setActiveTag(null);
+          setSort(isWinsMode ? 'newest' : 'daily_wins');
+        }}
         onOpenAuth={() => setAuthOpen(true)}
         onOpenComposer={() => {
-          setComposerDailyWin(false);
+          setComposerPreset({});
+          setComposerDailyWin(isWinsMode);
           setComposerOpen(true);
         }}
         onLogout={handleLogout}
@@ -320,10 +339,10 @@ function FeedContent() {
           <button
             onClick={() => {
               setCategory('all');
-              if (sort === 'followed') setSort('newest');
+              setSort('newest');
             }}
             className={`shrink-0 rounded-full border px-3 py-1 text-xs ${
-              category === 'all' && sort !== 'followed'
+              category === 'all' && sort !== 'followed' && sort !== 'daily_wins'
                 ? 'border-violet-400/50 bg-violet-500/20 text-violet-200'
                 : 'border-white/10 text-slate-400'
             }`}
@@ -359,9 +378,12 @@ function FeedContent() {
           {CATEGORIES.map((c) => (
             <button
               key={c.id}
-              onClick={() => setCategory(c.slug)}
+              onClick={() => {
+                setCategory(c.slug);
+                if (sort === 'daily_wins') setSort('newest');
+              }}
               className={`shrink-0 rounded-full border px-3 py-1 text-xs ${
-                category === c.slug
+                category === c.slug && sort !== 'daily_wins'
                   ? 'border-violet-400/50 bg-violet-500/20 text-violet-200'
                   : 'border-white/10 text-slate-400'
               }`}
@@ -372,7 +394,32 @@ function FeedContent() {
         </div>
       </div>
 
-      <main className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-4 py-6 lg:grid-cols-12">
+      {isWinsMode ? (
+        <main className="mx-auto max-w-6xl px-4 py-6">
+          <DailyWinsView
+            posts={visiblePosts}
+            loading={loading}
+            onBackToFeed={() => setSort('newest')}
+            onOpenWinComposer={(preset) => {
+              if (!user) {
+                setAuthOpen(true);
+              } else {
+                setComposerPreset(preset || {});
+                setComposerDailyWin(true);
+                setComposerOpen(true);
+              }
+            }}
+            onReact={handleReact}
+            onBookmark={handleBookmark}
+            onShare={(p) => setSharePost(p)}
+            onTagClick={(tag) => {
+              setActiveTag(tag);
+              setSort('newest');
+            }}
+          />
+        </main>
+      ) : (
+        <main className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-4 py-6 lg:grid-cols-12">
         {/* Sol Kenar Çubuğu (Masaüstü) */}
         <aside className="hidden space-y-5 lg:col-span-3 lg:block">
           {/* Takip Edilen Konular Bölümü */}
@@ -577,48 +624,15 @@ function FeedContent() {
 
         {/* Orta Kolon: Forum Akışı */}
         <section className="space-y-4 lg:col-span-6">
-          {sort === 'daily_wins' ? (
-            <div className="rounded-2xl border border-emerald-400/30 bg-gradient-to-br from-emerald-950/60 via-[#101c24] to-[#0d1220] p-6">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-500/15 px-2.5 py-0.5 text-xs font-semibold text-emerald-200">
-                    🌱 Küçük Zaferler (Daily Wins)
-                  </span>
-                  <h1 className="mt-2 font-serif text-xl font-semibold tracking-tight text-slate-50 sm:text-2xl">
-                    Büyük iyileşmeler, görünmez küçük adımlarla başlar.
-                  </h1>
-                  <p className="mt-1 text-xs leading-relaxed text-slate-300/90 sm:text-sm">
-                    Bugün yataktan kalkabildiysen, ertelediğin bir telefonu açtıysan veya kendine sınır
-                    koyabildiysen bu bir zaferdir. Paylaş, birlikte kutlayalım.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!user) {
-                      setAuthOpen(true);
-                    } else {
-                      setComposerDailyWin(true);
-                      setComposerOpen(true);
-                    }
-                  }}
-                  className="rounded-xl bg-emerald-400 px-4 py-2.5 text-xs font-semibold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-300"
-                >
-                  🌱 Küçük Zaferini Paylaş
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-[#161e33] via-[#111829] to-[#0d1220] p-6">
-              <h1 className="font-serif text-xl font-semibold tracking-tight text-slate-50 sm:text-2xl">
-                Aynı yoldan geçenlerle buluş, yargılanmadan içini dök.
-              </h1>
-              <p className="mt-1.5 text-xs leading-relaxed text-slate-400 sm:text-sm">
-                Gerçek kimliğin gizli kalır. Etiketlerle seninle aynı durumu yaşayanları bulabilir,
-                tek tıkla destek olabilirsin.
-              </p>
-            </div>
-          )}
+          <div className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-[#161e33] via-[#111829] to-[#0d1220] p-6">
+            <h1 className="font-serif text-xl font-semibold tracking-tight text-slate-50 sm:text-2xl">
+              Aynı yoldan geçenlerle buluş, yargılanmadan içini dök.
+            </h1>
+            <p className="mt-1.5 text-xs leading-relaxed text-slate-400 sm:text-sm">
+              Gerçek kimliğin gizli kalır. Etiketlerle seninle aynı durumu yaşayanları bulabilir,
+              tek tıkla destek olabilirsin.
+            </p>
+          </div>
 
           {/* Sıralama Sekmeleri */}
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -839,7 +853,8 @@ function FeedContent() {
             </ul>
           </div>
         </aside>
-      </main>
+        </main>
+      )}
 
       <AuthModal
         open={authOpen}
@@ -854,6 +869,9 @@ function FeedContent() {
       <PostComposerModal
         open={composerOpen}
         defaultDailyWin={composerDailyWin}
+        initialTitle={composerPreset.title}
+        initialCategoryId={composerPreset.categoryId}
+        initialTags={composerPreset.tags}
         onClose={() => setComposerOpen(false)}
         onCreated={() => loadFeed()}
         onCrisisTriggered={() => setCrisisOpen(true)}

@@ -398,7 +398,7 @@ function seedExtraFeaturesIfMissing(db: DatabaseSync) {
   }
 
   const winCount = db.prepare('SELECT COUNT(*) as c FROM posts WHERE is_daily_win = 1').get() as { c: number };
-  if (winCount.c === 0) {
+  if (winCount.c < 4) {
     const insertWin = db.prepare(`
       INSERT OR IGNORE INTO posts (id, author_id, category_id, title, content, mood, reply_mode, moderation_status, same_here_count, empathy_count, comment_count, is_daily_win, created_at, updated_at)
       VALUES (?, ?, ?, ?, ?, 'umutlu', 'open', 'approved', ?, ?, 0, 1, datetime('now', ?), datetime('now', ?))
@@ -428,6 +428,32 @@ function seedExtraFeaturesIfMissing(db: DatabaseSync) {
       '-9 hours'
     );
     attachTagsToPost(db, 'p-win-2', ['küçük-zafer', 'sınır-koyma', 'özgüven']);
+
+    insertWin.run(
+      'p-win-3',
+      'u-seed-2',
+      1,
+      'Eski mesajları tekrar tekrar okuyup kendimi üzmek yerine sohbeti arşivledim',
+      'Her gece aynı konuşmaları baştan okuyup "nerede hata yaptım" diye düşünmekten uyuyamıyordum. Bu akşam ilk kez telefonu kenara bırakıp kendime bitki çayı demledim. Zihnim ilk kez bu kadar sakin.',
+      19,
+      31,
+      '-6 hours',
+      '-6 hours'
+    );
+    attachTagsToPost(db, 'p-win-3', ['küçük-zafer', 'öz-şefkat', 'iyileşme']);
+
+    insertWin.run(
+      'p-win-4',
+      'u-seed-4',
+      6,
+      'Mükemmel olmasını beklemeden ertelediğim ödevin ilk sayfasını bitirdim',
+      'Haftalardır "ya yeterince iyi olmazsa" korkusuyla boş ekrana bakıyordum. Bugün sadece 25 dakikalık zamanlayıcı kurup kusurlu da olsa ilk sayfayı yazdım. Başlamak gerçekten yolun yarısıymış.',
+      25,
+      42,
+      '-2 hours',
+      '-2 hours'
+    );
+    attachTagsToPost(db, 'p-win-4', ['küçük-zafer', 'erteleme-bitti', 'odak']);
   }
 }
 

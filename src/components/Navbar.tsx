@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Bell, Feather, LogOut, Search, Shield, ShieldAlert, User } from 'lucide-react';
+import { Bell, Feather, LogOut, Search, Shield, ShieldAlert, Sprout, User } from 'lucide-react';
 import { NotificationItem, Profile } from '@/lib/types';
 import { TIER_INFO } from '@/lib/constants';
 import { Avatar } from './Avatar';
@@ -12,6 +12,8 @@ interface NavbarProps {
   notifications?: NotificationItem[];
   searchValue?: string;
   onSearchChange?: (val: string) => void;
+  isWinsMode?: boolean;
+  onToggleWinsMode?: () => void;
   onOpenAuth: () => void;
   onOpenComposer: () => void;
   onLogout: () => void;
@@ -23,6 +25,8 @@ export function Navbar({
   notifications: initialNotifications = [],
   searchValue = '',
   onSearchChange,
+  isWinsMode = false,
+  onToggleWinsMode,
   onOpenAuth,
   onOpenComposer,
   onLogout,
@@ -63,7 +67,13 @@ export function Navbar({
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#080c14]/90 backdrop-blur-md">
+      <header
+        className={`sticky top-0 z-40 border-b backdrop-blur-md transition-colors duration-300 ${
+          isWinsMode
+            ? 'border-emerald-400/20 bg-[#05110f]/90'
+            : 'border-white/10 bg-[#080c14]/90'
+        }`}
+      >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
         <Link href="/" className="group flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-400/35 bg-gradient-to-br from-violet-500/25 to-sky-500/25 shadow-sm shadow-violet-500/10 transition group-hover:border-violet-400/50">
@@ -98,8 +108,13 @@ export function Navbar({
               />
             </svg>
           </div>
-          <div>
+          <div className="flex items-center gap-2">
             <span className="font-serif text-xl font-semibold tracking-tight text-slate-100">unfold</span>
+            {isWinsMode && (
+              <span className="hidden rounded-full border border-emerald-400/30 bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-200 sm:inline-block">
+                🌱 Zaferler Bahçesi
+              </span>
+            )}
           </div>
         </Link>
 
@@ -110,19 +125,50 @@ export function Navbar({
               type="text"
               value={searchValue}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Benzer dertleri, etiketleri (#mobbing) veya hisleri ara..."
-              className="w-full rounded-xl border border-white/10 bg-[#101624] py-2 pl-10 pr-4 text-sm text-slate-200 placeholder-slate-500 focus:border-violet-400/40 focus:outline-none"
+              placeholder={
+                isWinsMode
+                  ? 'Küçük zaferlerde veya ilham hikayelerinde ara...'
+                  : 'Benzer dertleri, etiketleri (#mobbing) veya hisleri ara...'
+              }
+              className={`w-full rounded-xl border py-2 pl-10 pr-4 text-sm text-slate-200 placeholder-slate-500 focus:outline-none ${
+                isWinsMode
+                  ? 'border-emerald-400/20 bg-[#0a1b18] focus:border-emerald-400/50'
+                  : 'border-white/10 bg-[#101624] focus:border-violet-400/40'
+              }`}
             />
           </div>
         )}
 
         <div className="flex items-center gap-2">
+          {onToggleWinsMode && (
+            <button
+              type="button"
+              onClick={onToggleWinsMode}
+              className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition ${
+                isWinsMode
+                  ? 'border-emerald-400/50 bg-emerald-500/20 text-emerald-100 shadow-sm shadow-emerald-500/20'
+                  : 'border-emerald-400/25 bg-emerald-500/10 text-emerald-200 hover:border-emerald-400/45 hover:bg-emerald-500/20'
+              }`}
+            >
+              <Sprout className="h-3.5 w-3.5 text-emerald-300" />
+              <span className="hidden sm:inline">
+                {isWinsMode ? 'Dertleşme Akışı' : 'Küçük Zaferler'}
+              </span>
+            </button>
+          )}
+
           <button
             onClick={user ? onOpenComposer : onOpenAuth}
-            className="flex items-center gap-2 rounded-xl bg-violet-500 px-3.5 py-2 text-sm font-medium text-white shadow-lg shadow-violet-500/20 transition hover:bg-violet-400"
+            className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-medium shadow-lg transition ${
+              isWinsMode
+                ? 'bg-emerald-400 text-slate-950 shadow-emerald-500/20 hover:bg-emerald-300'
+                : 'bg-violet-500 text-white shadow-violet-500/20 hover:bg-violet-400'
+            }`}
           >
-            <Feather className="h-4 w-4" />
-            <span className="hidden sm:inline">İçini Dök</span>
+            {isWinsMode ? <Sprout className="h-4 w-4" /> : <Feather className="h-4 w-4" />}
+            <span className="hidden sm:inline">
+              {isWinsMode ? 'Zaferini Paylaş' : 'İçini Dök'}
+            </span>
           </button>
 
           {user ? (
