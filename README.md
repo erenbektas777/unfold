@@ -1,165 +1,165 @@
-# unfold — Yargılanmadan Anlaşılacağın Güvenli Alan
+# unfold — A Safe Space to Be Understood Without Judgment
 
 > [!IMPORTANT]
-> **Örnek Proje / Prototip Bildirimi:**
-> Bu proje, **anonim akran desteği (peer-support)**, **içerik güvenliği (PII & kriz filtreleme)** ve **empati odaklı topluluk deneyimi** kavramlarını sergilemek amacıyla geliştirilmiş **örnek bir web uygulamasıdır (prototip / demo proje)**.
-> Platform tıbbi, psikiyatrik veya profesyonel psikolojik danışmanlık hizmeti sunmaz; gerçek kriz durumlarında kullanıcıları doğrudan resmi acil destek hatlarına (`112` ve `ALO 183`) yönlendiren örnek bir güvenlik mimarisi içerir.
+> **Prototype / Sample Project Notice:**
+> This project is a **sample web application (prototype / demo project)** built to showcase concepts in **anonymous peer support**, **content safety (PII & crisis filtering)**, and **empathy-driven community design**.
+> The platform does not provide medical, psychiatric, or professional psychological counseling; it includes a sample safety architecture that directs users in crisis directly to official emergency helplines (`112` and `ALO 183`).
 
 ---
 
-## 1. Proje Amacı ve Vizyonu
+## 1. Project Purpose & Vision
 
-Geleneksel sosyal medya platformları kimlik, takipçi sayısı ve beğeni rekabeti üzerine kuruludur; bu durum insanların yaşadığı gerçek zorlukları (iş yerinde mobbing, sınav kaygısı, ayrılık, tükenmişlik, aile baskısı veya yalnızlık) paylaşmasını zorlaştırır.
+Traditional social media platforms are built around identity, follower counts, and like competition, making it difficult for people to open up about real struggles (workplace mobbing, exam anxiety, breakups, burnout, family pressure, or loneliness).
 
-**unfold**, *"Aynı dertlere sahip insanların yargılanmadan birbirini kolayca bulabildiği anonim dertleşme platformu"* vizyonuyla tasarlanmış örnek bir topluluk uygulamasıdır:
-- **Kimliksiz ama Güvenli:** Kullanıcılar gerçek isimleri yerine otomatik üretilen anonim rumuzlarla (`GeceYolcusu19`, `SessizMartı42` vb.) ve deterministik SVG avatarlarla yer alır.
-- **Rekabet Değil, Empati:** Klasik "Beğeni / Like" yerine **"Ben de yaşıyorum"**, **"Yanındayım"** ve **"Seni anlıyorum"** tepkileri kullanılır.
-- **Küçük Adımların Kutlanması:** Yalnızca dertlerin değil, iyileşme sürecindeki ufak başarıların da kutlandığı özel bir **🌱 Küçük Zaferler Bahçesi** arayüzü sunar.
-
----
-
-## 2. Öne Çıkan Özellikler
-
-### A. Empati ve Deneyim Odaklı Akış Mimarisi
-- **Çoklu Akış Modları:**
-  - `Yeni`: En güncel paylaşımlar
-  - `🌱 Küçük Zaferler`: Tamamen farklı görsel atmosfere sahip kutlama ve umut duvarı
-  - `★ Takip Edilenler`: Kullanıcının yıldızladığı konu ve `#etiket` başlıklarından oluşan kişisel akış
-  - `Sana Özel`: Kullanıcının geçmiş empati tepkilerine göre ağırlıklandırılmış öneri akışı
-  - `Aynı Durumdakiler`, `Cevap Bekleyenler` ve `En Çok Destek Alanlar`
-- **AkıllıBenzerlik Eşleştirmesi (Türkçe TF-IDF + Kosinüs Benzerliği):**
-  - Her paylaşımın detay sayfasında, ortak etiketler ve Türkçe kök/kelime benzerliğine göre aynı durumu yaşayan diğer kullanıcıların paylaşımları otomatik listelenir.
-
-### B. 🌱 Küçük Zaferler Bahçesi (`DailyWinsView`)
-Standart dertleşme akışından bağımsız, zümrüt ve kehribar tonlarında tasarlanmış özel arayüz:
-- **Topluluk Umut Sayacı:** Filizlenen zafer, toplam kutlama ve ilham alan kişi istatistikleri.
-- **Senin Bugünkü Küçük Adımların:** Kullanıcının günlük öz-bakım adımlarını (*"Bir bardak su içtim"*, *"Kendimi eleştirmeyi 5 dk durdurdum"* vb.) işaretleyip ilerleme çubuğunu doldurabildiği ve tek tıkla paylaşabildiği interaktif pano.
-- **Tek Tıkla Zafer İlhamı Şablonları:** Sınır koyma, odaklanma ve duygusal iyileşme için hazır başlangıç kartları.
-- **Zafer Duvarı Tepkileri:** Zafer kartlarına özel *"👏 Gurur Duydum"*, *"🌱 Umut Oldu"* ve *"💚 Kalpten Kutluyorum"* tepkileri.
-
-### C. Psikolojik Konfor ve Etkileşim Araçları
-- **4-7-8 Canlı Nefes Molası (`BreathingWidget`):** Sağ kenar çubuğunda saniye saniye geri sayan (`4 sn Nefes Al` → `7 sn Tut` → `8 sn Ver`) animasyonlu sakinleşme egzersizi.
-- **"Sonra Ne Oldu?" Hikaye Güncellemeleri:** Paylaşım sahibinin günler sonra sürecin nasıl sonuçlandığını orijinal paylaşımına ekleyebildiği zaman damgalı güncelleme bloğu.
-- **Anonim Karar Anketleri (`PollBlock`):** İkilemde kalan kullanıcıların *"Siz benim yerimde olsaydınız ne yapardınız?"* sorusuyla topluluktan anonim oy alabildiği anket sistemi.
-- **Geçici Paylaşımlar (24 Saat / 7 Gün):** Süresi dolduğunda akıştan otomatik olarak kalkan süreli dertleşme modu.
-- **Paylaşılabilir Hikaye Kartı (`ShareCardModal`):** Paylaşımları HTML5 Canvas üzerinden yüksek çözünürlüklü (`1080×1080`) anonim görsel kartı olarak PNG formatında indirme.
-
-### D. 3 Katmanlı Güvenlik, Kriz Kalkanı ve Öz-Moderasyon
-1. **Katman 1 — Anlık Lokal Filtre (`local-filter.ts`):**
-   - **Kişisel Veri (PII) Koruması:** Telefon numaraları (boşluklu/gizlenmiş dahil), e-posta adresleri ve sosyal medya hesapları otomatik tespit edilip engellenir.
-   - **Zorbalık ve Küfür Engeli:** Türkçe argo ve karakter değiştirmeli (`s.a.l.a.k` vb.) hakaret ifadeleri filtrelenir.
-   - **Kriz ve Kendine Zarar Verme Kalkanı:** İntihar veya kriz sinyali içeren metinler yayına alınmadan durdurulur ve kullanıcıya anında `112 Acil` ile `ALO 183` destek modalı (`CrisisModal`) açılır.
-2. **Katman 2 — Empatik Yorum Ön-Uyarısı & Yazar Öz-Moderasyonu:**
-   - Yorum yazarken yargılayıcı ifadeler (*"abartıyorsun"*, *"senin suçun"*, *"kafaya takma"* vb.) algılanırsa kullanıcıya göndermeden önce nazik bir empati hatırlatması gösterilir.
-   - Paylaşım sahibi tek tıkla gönderisini **"Sadece Empati (Yorumlara Kapalı)"** moduna alabilir, kendisine iyi gelen yorumları **"✨ Bana İyi Geldi"** rozetiyle öne çıkarabilir veya kendi paylaşımı altındaki bir yorumu gizleyebilir.
-3. **Katman 3 — Yönetici Korumalı Moderasyon Paneli (`/moderation`):**
-   - Yalnızca yönetici yetkisine (`is_admin` / `MODERATION_SECRET`) sahip hesapların erişebildiği şikayet inceleme ve moderasyon logları ekranı.
+**unfold** is a sample community platform designed with the vision of *"an anonymous peer-support space where people going through similar challenges can easily find one another without judgment"*:
+- **Anonymous Yet Safe:** Users participate with auto-generated anonymous aliases (e.g., `GeceYolcusu19`, `SessizMartı42`) and deterministic SVG avatars instead of real names.
+- **Empathy Over Competition:** Replaces traditional "Likes" with **"I'm going through this too"**, **"I'm here for you"**, and **"I hear you"** reactions.
+- **Celebrating Small Steps:** Features a dedicated **🌱 Daily Wins Garden** (`Küçük Zaferler Bahçesi`) where small personal victories during recovery are celebrated alongside struggles.
 
 ---
 
-## 3. Teknoloji Yığını (Tech Stack)
+## 2. Key Features
 
-| Katman | Teknoloji | Açıklama |
+### A. Empathy & Experience-Driven Feed Architecture
+- **Multiple Feed Modes:**
+  - `New`: Latest posts
+  - `🌱 Daily Wins`: A celebration and hope wall with a completely distinct visual atmosphere
+  - `★ Following`: Personalized feed built from topics and `#tags` starred by the user
+  - `For You`: Recommendation feed weighted by the user's past empathy reactions
+  - `Same Situation`, `Awaiting Replies`, and `Most Supported`
+- **Smart Similarity Matching (TF-IDF + Cosine Similarity):**
+  - On each post detail page, posts from other users experiencing similar situations are automatically matched and listed based on shared tags and text similarity.
+
+### B. 🌱 Daily Wins Garden (`DailyWinsView`)
+A dedicated emerald-and-amber interface separate from the standard venting feed:
+- **Community Hope Counter:** Displays stats for sprouting wins, total celebrations, and inspired members.
+- **Your Small Steps Today:** An interactive checklist where users can mark daily self-care steps (e.g., *"Drank a glass of water"*, *"Paused self-criticism for 5 min"*), fill their progress bar, and share with one click.
+- **One-Click Win Inspiration Templates:** Ready-made starter cards for setting boundaries, focus, and emotional recovery.
+- **Win Wall Reactions:** Dedicated *"👏 Proud of You"*, *"🌱 Gave Me Hope"*, and *"💚 Warmly Celebrating"* reactions.
+
+### C. Psychological Comfort & Interaction Tools
+- **4-7-8 Live Breathing Break (`BreathingWidget`):** Animated calming exercise in the right sidebar with a second-by-second countdown (`4s Inhale` → `7s Hold` → `8s Exhale`).
+- **"What Happened Next?" Story Updates:** Time-stamped update block allowing authors to add follow-up outcomes to their original post days later.
+- **Anonymous Decision Polls (`PollBlock`):** Community poll system for users facing dilemmas (*"What would you do in my shoes?"*).
+- **Ephemeral Posts (24 Hours / 7 Days):** Timed posting mode that automatically removes posts from the feed upon expiration.
+- **Shareable Story Card (`ShareCardModal`):** Exports posts as high-resolution (`1080×1080`) anonymous visual cards in PNG format using HTML5 Canvas.
+
+### D. 3-Layer Safety, Crisis Shield & Self-Moderation
+1. **Layer 1 — Instant Local Filter (`local-filter.ts`):**
+   - **Personal Data (PII) Protection:** Automatically detects and blocks phone numbers (including spaced/obfuscated formats), email addresses, and social media handles.
+   - **Bullying & Profanity Blocking:** Filters abusive language and character-substituted insults.
+   - **Crisis & Self-Harm Shield:** Stops posts containing crisis or self-harm signals before publication and immediately opens an emergency support modal (`CrisisModal`) with `112 Emergency` and `ALO 183`.
+2. **Layer 2 — Empathetic Comment Pre-Warning & Author Self-Moderation:**
+   - Detects judgmental phrases while drafting comments and shows a gentle empathy reminder before submission.
+   - Authors can switch posts to **"Empathy Only (Comments Disabled)"** in one click, highlight helpful replies with **"✨ This Helped Me"**, or hide comments on their own posts.
+3. **Layer 3 — Admin-Protected Moderation Panel (`/moderation`):**
+   - Report review and moderation log dashboard accessible only to admin accounts (`is_admin` / `MODERATION_SECRET`).
+
+---
+
+## 3. Tech Stack
+
+| Layer | Technology | Description |
 | :--- | :--- | :--- |
-| **Çatı (Framework)** | Next.js 15 (App Router) + React 19 | Sunucu ve istemci bileşenleri, API Route Handlers |
-| **Dil** | TypeScript | Uçtan uca tip güvenliği |
-| **Stil & Tasarım** | Tailwind CSS + Lucide Icons | Karanlık mod odaklı empatik arayüz ve mikro-animasyonlar |
-| **Veritabanı** | Yerleşik SQLite (`node:sqlite` WAL modu) | Sıfır dış servis maliyetiyle çalışan yerel ilişkisel veritabanı (veya opsiyonel Supabase PostgreSQL şeması `supabase/schema.sql`) |
-| **Kimlik Doğrulama** | HMAC-SHA256 imzalı HTTP-Only Cookie + Scrypt | E-posta/OTP doğrulama, şifre sıfırlama ve tek tıkla anonim demo oturumu |
-| **Dağıtım (Deploy)** | Docker + Render Blueprint (`render.yaml`) + PWA | Mobil ana ekrana eklenebilir Web App Manifest ve konteyner desteği |
+| **Framework** | Next.js 15 (App Router) + React 19 | Server & client components, API Route Handlers |
+| **Language** | TypeScript | End-to-end type safety |
+| **Styling & UI** | Tailwind CSS + Lucide Icons | Dark-mode empathetic UI and micro-animations |
+| **Database** | Built-in SQLite (`node:sqlite` WAL mode) | Zero external service cost local relational DB (plus optional Supabase PostgreSQL schema `supabase/schema.sql`) |
+| **Authentication** | HMAC-SHA256 signed HTTP-Only Cookie + Scrypt | Email/OTP verification, password reset, and one-click anonymous demo session |
+| **Deployment** | Docker + Render Blueprint (`render.yaml`) + PWA | Installable Web App Manifest and container support |
 
 ---
 
-## 4. Proje Dizin Yapısı
+## 4. Project Structure
 
 ```text
 unfold/
 ├── src/
 │   ├── app/
 │   │   ├── api/
-│   │   │   ├── auth/route.ts          # Kayıt, OTP doğrulama, giriş, demo hesap, rumuz güncelleme
-│   │   │   ├── posts/route.ts         # Akış listeleme, filtreleme, yeni gönderi oluşturma
-│   │   │   ├── posts/[id]/route.ts    # Gönderi detay, düzenleme, silme, "Sonra Ne Oldu?" güncellemesi
-│   │   │   ├── comments/route.ts      # Yorum ekleme, "Bana İyi Geldi" işaretleme, yazar gizlemesi
-│   │   │   ├── reactions/route.ts     # Empati tepkileri (Ben de yaşıyorum, Yanındayım, Seni anlıyorum)
-│   │   │   ├── polls/route.ts         # Anonim karar anketi oylama
-│   │   │   ├── follows/route.ts       # Konu ve etiket takip etme
-│   │   │   ├── bookmarks/route.ts     # Paylaşım kaydetme
-│   │   │   ├── notifications/route.ts # Bildirim listeleme ve okundu işaretleme
-│   │   │   ├── reports/route.ts       # Topluluk şikayet bildirimi
-│   │   │   ├── moderation/route.ts    # Admin yetkilendirme ve şikayet/log yönetimi
-│   │   │   └── health/route.ts        # Sunucu sağlık kontrolü (/api/health)
-│   │   ├── post/[id]/page.tsx         # Gönderi detay, yorum ağacı ve benzer dertler sayfası
-│   │   ├── profile/page.tsx           # Anonim profil, güven skoru, etki özeti ve küçük zaferlerim
-│   │   ├── moderation/page.tsx        # Yönetici (Admin) moderasyon ve güvenlik paneli
-│   │   ├── manifest.ts                # PWA mobil uygulama manifestosu
-│   │   ├── icon.svg                   # Ortak Yörünge (Empati & Buluşma) vektörel logosu
-│   │   └── page.tsx                   # Ana dertleşme akışı ve Küçük Zaferler geçişi
+│   │   │   ├── auth/route.ts          # Registration, OTP verification, login, demo account, alias updates
+│   │   │   ├── posts/route.ts         # Feed listing, filtering, post creation
+│   │   │   ├── posts/[id]/route.ts    # Post detail, edit, delete, "What Happened Next?" update
+│   │   │   ├── comments/route.ts      # Add comments, "This Helped Me" badge, author hide
+│   │   │   ├── reactions/route.ts     # Empathy reactions
+│   │   │   ├── polls/route.ts         # Anonymous decision poll voting
+│   │   │   ├── follows/route.ts       # Follow topics and tags
+│   │   │   ├── bookmarks/route.ts     # Bookmark posts
+│   │   │   ├── notifications/route.ts # List notifications & mark as read
+│   │   │   ├── reports/route.ts       # Community report submissions
+│   │   │   ├── moderation/route.ts    # Admin auth & report/log management
+│   │   │   └── health/route.ts        # Server health check (/api/health)
+│   │   ├── post/[id]/page.tsx         # Post detail, comment tree & similar posts page
+│   │   ├── profile/page.tsx           # Anonymous profile, trust score, impact summary & daily wins
+│   │   ├── moderation/page.tsx        # Admin moderation & safety dashboard
+│   │   ├── manifest.ts                # PWA web app manifest
+│   │   ├── icon.svg                   # Shared Orbit vector logo
+│   │   └── page.tsx                   # Main feed & Daily Wins switcher
 │   ├── components/
-│   │   ├── DailyWinsView.tsx          # Küçük Zaferler Bahçesi özel arayüzü ve günlük adım çizelgesi
-│   │   ├── Navbar.tsx                 # Üst navigasyon, bildirimler ve güvenli çıkış onayı
-│   │   ├── PostCard.tsx               # Gönderi kartı bileşeni
-│   │   ├── PostComposerModal.tsx      # İçini Dök / Küçük Zafer paylaşım penceresi
-│   │   ├── BreathingWidget.tsx        # 4-7-8 canlı geri sayımlı nefes egzersizi
-│   │   ├── PollBlock.tsx              # Anonim anket bileşeni
-│   │   ├── ShareCardModal.tsx         # PNG hikaye kartı üretici
-│   │   ├── CrisisModal.tsx            # 112 & ALO 183 acil destek penceresi
-│   │   ├── AuthModal.tsx              # Kayıt, giriş ve anında OTP doğrulama penceresi
-│   │   ├── Footer.tsx                 # Hukuki metinler (KVKK, Topluluk Kuralları, 5651) ve sorumluluk reddi
-│   │   └── Avatar.tsx                 # Deterministik anonim SVG avatar üretici
+│   │   ├── DailyWinsView.tsx          # Daily Wins Garden UI & daily step tracker
+│   │   ├── Navbar.tsx                 # Top navigation, notifications & safe sign-out confirmation
+│   │   ├── PostCard.tsx               # Post card component
+│   │   ├── PostComposerModal.tsx      # Vent / Daily Win composer modal
+│   │   ├── BreathingWidget.tsx        # 4-7-8 live countdown breathing widget
+│   │   ├── PollBlock.tsx              # Anonymous poll component
+│   │   ├── ShareCardModal.tsx         # PNG story card generator
+│   │   ├── CrisisModal.tsx            # 112 & ALO 183 emergency support modal
+│   │   ├── AuthModal.tsx              # Sign-up, login & instant OTP verification modal
+│   │   ├── Footer.tsx                 # Legal notices, community guidelines & disclaimer
+│   │   └── Avatar.tsx                 # Deterministic anonymous SVG avatar generator
 │   └── lib/
-│       ├── db.ts                      # SQLite şeması, başlangıç (seed) verileri ve sorgular
-│       ├── auth.ts                    # Oturum, şifreleme ve OTP doğrulama yardımcıları
-│       ├── constants.ts               # Kategoriler, ruh halleri ve güven kademeleri
-│       ├── rate-limit.ts              # Flood ve hız sınırı koruma katmanı
+│       ├── db.ts                      # SQLite schema, seed data & queries
+│       ├── auth.ts                    # Session, hashing & OTP helpers
+│       ├── constants.ts               # Categories, moods & trust tiers
+│       ├── rate-limit.ts              # Flood & rate-limit protection
 │       └── moderation/
-│           ├── local-filter.ts        # PII, küfür, kriz ve TF-IDF etiket/benzerlik motoru
-│           └── ai-analyzer.ts         # Opsiyonel Gemini AI moderasyon entegrasyonu
-├── Dockerfile                         # Üretim (Production) Docker imajı
-├── render.yaml                        # Render.com ücretsiz tek tıkla kurulum şablonu
-└── .env.example                       # Ortam değişkenleri örneği
+│           ├── local-filter.ts        # PII, profanity, crisis & TF-IDF similarity engine
+│           └── ai-analyzer.ts         # Optional Gemini AI moderation integration
+├── Dockerfile                         # Production Docker image
+├── render.yaml                        # One-click free Render.com deployment blueprint
+└── .env.example                       # Example environment variables
 ```
 
 ---
 
-## 5. Kurulum ve Yerel Çalıştırma
+## 5. Local Setup & Running
 
-### Gereksinimler
-- **Node.js 22+** (yerleşik `node:sqlite` modülü için)
+### Prerequisites
+- **Node.js 22+** (for the built-in `node:sqlite` module)
 
-### Adımlar
+### Steps
 
 ```bash
-# 1. Bağımlılıkları yükleyin
+# 1. Install dependencies
 npm install
 
-# 2. Birim testlerini çalıştırın
+# 2. Run unit tests
 npm test
 
-# 3. Üretim derlemesini (Production Build) oluşturun
+# 3. Create production build
 npm run build
 
-# 4. Sunucuyu başlatın (Varsayılan: http://localhost:3000)
+# 4. Start the server (Default: http://localhost:3000)
 npm start
 ```
 
-İlk çalıştırmada `.data/unfold.db` SQLite veritabanı ve örnek (seed) paylaşımlar otomatik olarak oluşturulur; herhangi bir ücretli API anahtarı gerektirmez.
+On first launch, `.data/unfold.db` SQLite database and sample seed posts are created automatically—no paid API keys required.
 
-### Yönetici (Admin) Paneli Erişimi
-- Tarayıcıda `http://localhost:3000/moderation` adresine gidin.
-- Oturum açtıktan sonra yönetici anahtarı alanına varsayılan `unfold-admin-2026` (veya `.env` içinde belirlediğiniz `MODERATION_SECRET` değerini) girerek hesabınıza **Admin** yetkisi tanımlayabilirsiniz.
-
----
-
-## 6. Bulutta Ücretsiz Yayınlama (Render / Docker)
-
-Depo içerisindeki `Dockerfile` ve `render.yaml` dosyaları sayesinde projeyi ücretsiz olarak bulutta çalıştırabilirsiniz:
-
-1. [Render Blueprint Kurulum Sayfası](https://render.com/deploy?repo=https://github.com/erenbektas777/unfold) üzerinden GitHub hesabınızla giriş yapın.
-2. Servis adını (`unfold`) onaylayıp **Apply** butonuna basın.
+### Admin Panel Access
+- Navigate to `http://localhost:3000/moderation` in your browser.
+- After signing in, enter the default admin key `unfold-admin-2026` (or your `MODERATION_SECRET` value from `.env`) to grant **Admin** permissions to your account.
 
 ---
 
-## 7. Yasal Uyarı ve Sorumluluk Reddi
+## 6. Free Cloud Deployment (Render / Docker)
 
-Bu yazılım **örnek bir portfolyo / konsept projesi** olarak sunulmaktadır. İçerisinde yer alan başlangıç verileri kurgusaldır. Acil psikolojik veya tıbbi destek gerektiren durumlarda **112 Acil Çağrı Merkezi** veya **ALO 183 Sosyal Destek Hattı** ile iletişime geçilmelidir.
+You can deploy the project to the cloud for free using the included `Dockerfile` and `render.yaml`:
+
+1. Sign in with GitHub on the [Render Blueprint Deploy Page](https://render.com/deploy?repo=https://github.com/erenbektas777/unfold).
+2. Confirm the service name (`unfold`) and click **Apply**.
+
+---
+
+## 7. Legal Notice & Disclaimer
+
+This software is presented as a **sample portfolio / concept project**. All initial seed data is fictional. In situations requiring urgent psychological or medical assistance, please contact **112 Emergency** or **ALO 183 Social Support Line**.
